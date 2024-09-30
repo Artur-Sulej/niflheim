@@ -21,10 +21,13 @@ fn init() -> Result<ResourceArc<CollectionResource>, Error> {
 }
 
 #[rustler::nif]
-fn read(
-    env: Env,
-    resource: ResourceArc<CollectionResource>,
-) -> Term {
+fn add_items(resource: ResourceArc<CollectionResource>, items: Vec<i64>) -> ResourceArc<CollectionResource> {
+    resource.collection.write().unwrap().extend(items.iter().map(|&x| x as f64));
+    resource
+}
+
+#[rustler::nif]
+fn read(env: Env, resource: ResourceArc<CollectionResource>) -> Term {
     let resource_struct = resource.collection.read().unwrap();
 
     // Convert the collection to a Rustler term
