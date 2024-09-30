@@ -1,8 +1,8 @@
 defmodule NiflheimTest do
   use ExUnit.Case
-  doctest Niflheim
+  alias Niflheim.NifDemo
 
   test "greets the world" do
-    assert Niflheim.hello() == :world
+    assert NifDemo.init() |> NifDemo.read() == [1, 2, 3]
   end
 end
