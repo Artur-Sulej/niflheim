@@ -7,14 +7,20 @@ fn add(a: i64, b: i64) -> i64 {
     a + b
 }
 
+struct CustomCollection {
+    pub collection: Vec<f64>,
+}
+
 struct CollectionResource {
-    pub collection: RwLock<Vec<f64>>,
+    pub custom_collection: RwLock<CustomCollection>,
 }
 
 #[rustler::nif]
 fn init() -> Result<ResourceArc<CollectionResource>, Error> {
     let resource = ResourceArc::new(CollectionResource {
-        collection: RwLock::new(vec![1.1, 4.5, 6.7]),
+        custom_collection: RwLock::new(CustomCollection {
+            collection: vec![1.1, 4.5, 6.7],
+        }),
     });
 
     Ok(resource)
@@ -22,17 +28,16 @@ fn init() -> Result<ResourceArc<CollectionResource>, Error> {
 
 #[rustler::nif]
 fn add_items(resource: ResourceArc<CollectionResource>, items: Vec<i64>) -> ResourceArc<CollectionResource> {
-    resource.collection.write().unwrap().extend(items.iter().map(|&x| x as f64));
+    resource.custom_collection.write().unwrap().collection.extend(items.iter().map(|&x| x as f64));
     resource
 }
 
 #[rustler::nif]
 fn read(env: Env, resource: ResourceArc<CollectionResource>) -> Term {
-    let resource_struct = resource.collection.read().unwrap();
+    let custom_collection = resource.custom_collection.read().unwrap();
 
     // Convert the collection to a Rustler term
-    let collection: Vec<f64> = resource_struct.clone();
-    collection.encode(env)
+    custom_collection.collection.encode(env)
 }
 
 fn load(env: Env, _: Term) -> bool {
